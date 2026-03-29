@@ -14,7 +14,21 @@ function App() {
   const [isHost, setIsHost] = useState(false)
   
   const [players, setPlayers] = useState<string[]>([])
-  const [pings, setPings] = useState<Record<string, string>>({})
+  const [pings, setPings] = useState<Record<string, { image: string, time: number }>>({})
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [])
+
+  const formatAgo = (timestamp: number) => {
+    const seconds = Math.floor((now - timestamp) / 1000);
+    if (seconds < 5) return 'À l\'instant - REC';
+    if (seconds < 60) return `Il y a ${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    return `Il y a ${minutes} m`;
+  };
   
   const [hotkey, setHotkey] = useState<number>(44) // 44 is Z on typical uiohook, 30 is A, 57 is Space. We just give a default.
 
@@ -62,7 +76,7 @@ function App() {
     }
 
     peerService.onImageReceived = (peerId, imageBase64) => {
-      setPings(prev => ({ ...prev, [peerId]: imageBase64 }));
+      setPings(prev => ({ ...prev, [peerId]: { image: imageBase64, time: Date.now() } }));
       
       // Trigger animation
       activePings.current.add(peerId);
@@ -184,7 +198,9 @@ function App() {
           
           <div className="ping-grid">
             {players.map((pId) => {
-              const imgData = pings[pId];
+              const pingData = pings[pId];
+              const imgData = pingData?.image;
+              const timeText = pingData ? formatAgo(pingData.time) : 'En attente...';
               const isActive = activePings.current.has(pId);
               
               return (
@@ -195,6 +211,10 @@ function App() {
                         className={`ping-image ${isActive ? 'active' : ''}`}
                         alt="ping" 
                       />
+                      <div className={`time-badge ${!pingData ? 'waiting' : ''} ${isActive ? 'rec' : ''}`}>
+                        {isActive && <span className="rec-dot"></span>}
+                        {timeText}
+                      </div>
                    </div>
                    <div className="player-name">
                      {pId === sessionId ? 'Moi' : pId.substring(0, 5)}
