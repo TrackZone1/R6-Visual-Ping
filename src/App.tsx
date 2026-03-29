@@ -108,6 +108,7 @@ function App() {
       setIsConnected(true);
       setIsHost(true);
       setPlayers([id]); // Host is alone initially
+      setPseudos({ [id]: pseudo });
     } catch (e) {
       alert("Failed to host session.");
     }
@@ -127,6 +128,7 @@ function App() {
       setIsConnected(true);
       setIsHost(false);
       setPlayers([id]);
+      setPseudos({ [id]: pseudo });
     } catch (e) {
       alert("Failed to join session. Does the host exist?");
     }
