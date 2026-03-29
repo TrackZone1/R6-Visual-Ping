@@ -6,8 +6,8 @@ export class CaptureService {
   
   constructor() {
     this.canvasEl = document.createElement('canvas');
-    this.canvasEl.width = 300;
-    this.canvasEl.height = 300;
+    this.canvasEl.width = 450;
+    this.canvasEl.height = 450;
     this.ctx = this.canvasEl.getContext('2d', { willReadFrequently: true })!;
   }
 
@@ -57,7 +57,7 @@ export class CaptureService {
     const vh = this.videoEl.videoHeight;
     if (vw === 0 || vh === 0) return null;
 
-    const cropSize = 300;
+    const cropSize = 450;
     
     const sx = Math.floor(vw / 2 - cropSize / 2);
     const sy = Math.floor(vh / 2 - cropSize / 2);

@@ -154,7 +154,7 @@ button:disabled {
 
 .ping-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
   width: 100%;
   max-width: 800px;
@@ -180,8 +180,8 @@ button:disabled {
 
 .ping-image-container {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 220px;
+  height: 220px;
 }
 
 .ping-image {
