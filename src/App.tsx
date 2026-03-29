@@ -10,10 +10,13 @@ function App() {
   const [sessionId, setSessionId] = useState<string>('')
   const [joinId, setJoinId] = useState<string>('')
   
+  const [pseudo, setPseudo] = useState<string>(localStorage.getItem('r6_pseudo') || '')
+  
   const [isConnected, setIsConnected] = useState(false)
   const [isHost, setIsHost] = useState(false)
   
   const [players, setPlayers] = useState<string[]>([])
+  const [pseudos, setPseudos] = useState<Record<string, string>>({})
   const [pings, setPings] = useState<Record<string, { image: string, time: number }>>({})
   const [now, setNow] = useState(Date.now())
 
@@ -30,7 +33,7 @@ function App() {
     return `Il y a ${minutes} m`;
   };
   
-  const [hotkey, setHotkey] = useState<number>(44) // 44 is Z on typical uiohook, 30 is A, 57 is Space. We just give a default.
+  const [hotkey, setHotkey] = useState<number>(parseInt(localStorage.getItem('r6_hotkey') || '44'))
 
   // Reference for the animation class
   const activePings = useRef<Set<string>>(new Set())
@@ -71,8 +74,9 @@ function App() {
   }
 
   useEffect(() => {
-    peerService.onConnectionUpdate = (playersList) => {
+    peerService.onConnectionUpdate = (playersList, peerPseudos) => {
       setPlayers([...playersList]);
+      if (peerPseudos) setPseudos({ ...peerPseudos });
     }
 
     peerService.onImageReceived = (peerId, imageBase64) => {
@@ -89,7 +93,8 @@ function App() {
   }, [])
 
   const handleHost = async () => {
-    if (!selectedSource) return;
+    if (!selectedSource || !pseudo.trim()) return alert("Veuillez choisir un pseudo");
+    localStorage.setItem('r6_pseudo', pseudo);
     
     // Start capture first
     const captureOk = await captureService.startCapture(selectedSource);
@@ -98,7 +103,7 @@ function App() {
     // Generate random 5-char ID
     const randomId = Math.random().toString(36).substring(2, 7).toUpperCase();
     try {
-      const id = await peerService.hostSession(randomId);
+      const id = await peerService.hostSession(randomId, pseudo);
       setSessionId(id);
       setIsConnected(true);
       setIsHost(true);
@@ -109,14 +114,15 @@ function App() {
   }
 
   const handleJoin = async () => {
-    if (!selectedSource || !joinId) return;
+    if (!selectedSource || !joinId || !pseudo.trim()) return alert("Remplissez le pseudo et le code de session");
+    localStorage.setItem('r6_pseudo', pseudo);
     
     // Start capture first
     const captureOk = await captureService.startCapture(selectedSource);
     if (!captureOk) return alert("Failed to start capture");
 
     try {
-      const id = await peerService.joinSession(joinId.toUpperCase());
+      const id = await peerService.joinSession(joinId.toUpperCase(), pseudo);
       setSessionId(id);
       setIsConnected(true);
       setIsHost(false);
@@ -139,8 +145,9 @@ function App() {
     alert("Please press your ping key just once, then click OK on the next popup");
     const tempListener = (code: number) => {
       setHotkey(code);
+      localStorage.setItem('r6_hotkey', code.toString());
       window.electronAPI.offGlobalKeyDown();
-      alert("Hotkey set to code: " + code);
+      alert("Touche configurée !");
     };
     window.electronAPI.onGlobalKeyDown(tempListener);
   }
@@ -159,6 +166,16 @@ function App() {
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
+          </div>
+
+          <div className="input-group">
+            <label><Users size={16} style={{verticalAlign:'text-bottom', marginRight:'5px'}}/> Ton Pseudo</label>
+            <input 
+              placeholder="Ex: AshMain" 
+              value={pseudo} 
+              onChange={e => setPseudo(e.target.value)}
+              style={{ width: '100%', padding: '0.8rem', boxSizing:'border-box', background: 'rgba(0,0,0,0.5)', color: 'white', border: '1px solid #444', borderRadius: '4px' }}
+            />
           </div>
 
           <div className="input-group">
@@ -217,7 +234,7 @@ function App() {
                       </div>
                    </div>
                    <div className="player-name">
-                     {pId === sessionId ? 'Moi' : pId.substring(0, 5)}
+                     {pseudos[pId] || pId.substring(0, 5)}
                    </div>
                 </div>
               )
