@@ -13,7 +13,14 @@ export class PeerService {
   hostSession(hostId: string): Promise<string> {
     return new Promise((resolve, reject) => {
       this.isHost = true;
-      this.peer = new Peer(hostId);
+      this.peer = new Peer(hostId, {
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        }
+      });
       
       this.peer.on('open', (id) => resolve(id));
       this.peer.on('error', (err) => reject(err));
@@ -27,7 +34,14 @@ export class PeerService {
   joinSession(hostId: string): Promise<string> {
     return new Promise((resolve, reject) => {
       this.isHost = false;
-      this.peer = new Peer();
+      this.peer = new Peer({
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        }
+      });
       
       this.peer.on('open', (myId) => {
         const conn = this.peer!.connect(hostId);
