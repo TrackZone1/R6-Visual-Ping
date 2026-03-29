@@ -26,7 +26,9 @@ export class PeerService {
       this.peer.on('error', (err) => reject(err));
       
       this.peer.on('connection', (conn) => {
-        this.addConnection(conn);
+        conn.on('open', () => {
+          this.addConnection(conn);
+        });
       });
     });
   }
@@ -107,7 +109,9 @@ export class PeerService {
   private broadcastToOthers(data: any, ignorePeerId?: string) {
     this.connections.forEach(conn => {
       if (conn.peer !== ignorePeerId) {
-         conn.send(data);
+         if (conn.open) {
+           conn.send(data);
+         }
       }
     });
   }
