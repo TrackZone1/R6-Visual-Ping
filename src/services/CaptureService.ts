@@ -6,8 +6,8 @@ export class CaptureService {
   
   constructor() {
     this.canvasEl = document.createElement('canvas');
-    this.canvasEl.width = 450;
-    this.canvasEl.height = 450;
+    this.canvasEl.width = 960;
+    this.canvasEl.height = 540;
     this.ctx = this.canvasEl.getContext('2d', { willReadFrequently: true })!;
   }
 
@@ -57,14 +57,17 @@ export class CaptureService {
     const vh = this.videoEl.videoHeight;
     if (vw === 0 || vh === 0) return null;
 
-    const cropSize = 450;
+    // Calculer la taille pour le plein écran avec un max de 960px de large
+    const scale = Math.min(1, 960 / vw);
+    const targetW = Math.round(vw * scale);
+    const targetH = Math.round(vh * scale);
     
-    const sx = Math.floor(vw / 2 - cropSize / 2);
-    const sy = Math.floor(vh / 2 - cropSize / 2);
+    if (this.canvasEl.width !== targetW) this.canvasEl.width = targetW;
+    if (this.canvasEl.height !== targetH) this.canvasEl.height = targetH;
     
-    this.ctx.drawImage(this.videoEl, sx, sy, cropSize, cropSize, 0, 0, cropSize, cropSize);
+    this.ctx.drawImage(this.videoEl, 0, 0, vw, vh, 0, 0, targetW, targetH);
     
-    return this.canvasEl.toDataURL('image/webp', 0.8);
+    return this.canvasEl.toDataURL('image/webp', 0.6); // Qualité réduite pour compenser la plus grande image
   }
 }
 
