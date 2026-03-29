@@ -153,12 +153,14 @@ button:disabled {
 
 
 .ping-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
   width: 100%;
-  max-width: 800px;
-  margin-top: 2rem;
+  max-width: 1800px; /* Permet de prendre tout l'écran en plein écran */
+  margin-top: 1rem;
 }
 
 .ping-card {
