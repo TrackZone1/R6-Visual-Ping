@@ -156,10 +156,11 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1><Target size={40} style={{ verticalAlign: 'middle', marginRight: '10px' }}/>R6 Visual Ping</h1>
 
       {!isConnected ? (
-        <div className="glass-panel">
+        <>
+          <h1><Target size={40} style={{ verticalAlign: 'middle', marginRight: '10px' }}/>R6 Visual Ping</h1>
+          <div className="glass-panel">
           
           <div className="input-group">
             <label><MonitorPlay size={16} style={{verticalAlign:'text-bottom', marginRight:'5px'}}/> Source de Capture (Ton jeu)</label>
@@ -203,11 +204,11 @@ function App() {
               <Users size={18}/> Rejoindre
             </button>
           </div>
-
-        </div>
+          </div>
+        </>
       ) : (
         <>
-          <div className="status-badge {isHost ? 'host' : 'connected'}">
+          <div className={`status-badge ${isHost ? 'host' : 'connected'}`}>
             {isHost ? `Session HOST : ${sessionId}` : `Dans la session hébergée`}
           </div>
           
