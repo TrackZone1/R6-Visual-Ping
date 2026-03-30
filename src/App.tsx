@@ -215,7 +215,7 @@ function App() {
             Se Déconnecter
           </button>
           
-          <div className="ping-grid">
+          <div className={`ping-grid layout-${Math.min(players.length, 12)}`}>
             {players.map((pId) => {
               const pingData = pings[pId];
               const imgData = pingData?.image;
